@@ -3,6 +3,7 @@ package com.wedding.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -63,6 +64,54 @@ public class ServiceApiController extends HttpServlet {
 		}
 	}
 
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String servletPath = req.getServletPath();
+		switch (servletPath) {
+			case UrlConstant.URL_SERVICE_ADD:
+				req.setCharacterEncoding("UTF-8");
+				resp.setCharacterEncoding("UTF-8");
+				resp.setContentType("text/html");
 
+				String serviceName = req.getParameter("serviceName");
+				int servicePrice = Integer.parseInt(req.getParameter("servicePrice"));
+				String startingDate = java.time.LocalDate.now().toString();
+				String endingDate = null;
+
+				Service service = new Service();
+				service.setServiceName(serviceName);
+				service.setServicePrice(servicePrice);
+				service.setStartingDate(startingDate);
+				service.setEndingDate(endingDate);
+				serviceService.addService(service);
+				break;
+			default:
+				break;
+		}
+	}
+
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String servletPath = req.getServletPath();
+		switch(servletPath) {
+			case UrlConstant.URL_SERVICE_UPDATE:
+				req.setCharacterEncoding("UTF-8");
+				resp.setCharacterEncoding("UTF-8");
+				resp.setContentType("text/html");
+				String JSON = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+				Service service = serviceService.convertJSONtoServiceUpdate(JSON);
+
+				String startingDate = java.time.LocalDate.now().toString();
+				String endingDate = null;
+
+				service.setStartingDate(startingDate);
+				service.setEndingDate(endingDate);
+				serviceService.updateService(service);
+				break;
+			default:
+				break;
+		}
+	}
+	
 	
 }
