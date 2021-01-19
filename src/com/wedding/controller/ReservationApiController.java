@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.wedding.dto.MonthRevenueDTO;
+import com.wedding.dto.ReservationUpdateDTO;
 import com.wedding.models.Reservation;
 import com.wedding.models.ReservationUpdate;
 import com.wedding.service.ReservationService;
@@ -103,6 +104,47 @@ public class ReservationApiController extends HttpServlet {
 		}
 	}
 
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String servletPath = req.getServletPath();
+		String id = req.getParameter("id");
+		switch (servletPath) {
+		case UrlConstant.URL_RESERVATION_DELETE:
+			if (id != null) {
+				req.setCharacterEncoding("UTF-8");
+				resp.setCharacterEncoding("UTF-8");
+				resp.setContentType("application/json");
+				int weddingID = Integer.parseInt(id);
+				reservationService.deleteReservation(weddingID);
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+	}
 
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		String servletPath = req.getServletPath();
+		switch (servletPath) {
+		case UrlConstant.URL_RESERVATION_UPDATE:
+			req.setCharacterEncoding("UTF-8");
+			resp.setCharacterEncoding("UTF-8");
+			resp.setContentType("text/html");
+			String Json = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+			ReservationUpdateDTO reservation = reservationService.convertJsonToReservationDTO(Json);
+			reservationService.updateReservation(reservation);
+
+			break;
+		case UrlConstant.URL_RESERVATION_PAY:
+			int id = Integer.parseInt(req.getParameter("id"));
+			int userID = Integer.parseInt(req.getReader().lines().collect(Collectors.joining(System.lineSeparator())));
+			reservationService.pay(id, userID);
+			break;
+		default:
+			break;
+		}
+	}
 
 }
